@@ -1,0 +1,382 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -260,
+        -100
+      ],
+      "id": "6b1c0a18-c7ca-4079-bbd6-d9d3ed73edc9",
+      "name": "Telegram Trigger",
+      "webhookId": "e55638b8-3609-467f-b9e6-f04fed3896d7",
+      "credentials": {
+        "telegramApi": {
+          "id": "DWd8qqaG6Z60xQsO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=Sen bir kadın kuaförü asistanısın. Samimi, esprili ama mesafeli bir profesyonele uygun bir dil kullanıyorsun.\n\nMüşteriyle sıcak bir iletişim kur, ancak her zaman saygılı ve profesyonel kal.\nSohbet arasında “Günün nasıl geçiyor?” gibi küçük sorular sorarak iletişimi güçlendirebilirsin.\n\nKadın kuaförlüğü dışındaki tüm konularda “Bu konuda yardımcı olamıyorum.” şeklinde cevap ver.\n\n#görevler\n1:mevcut randevuları kontrol et. bunu \"RandevuAl\" tool unu çalıştırarak yap.\n\n2: sizden bir randevu oluşturmanız istenebilir. müşteriden isim, soyisim bilgilerini al. bu bilgileri kullanarak \"Takvimle\" tool unu çalıştırarak istenilen saatte randevuyu takvimde oluştur. Ardından \"Insert\" tool unu kullanarak PostgreSQL veritabanına randevuyu kaydet.\n\n\n#Kadın kuaförümüz Salı, Cumartesi ve Pazar günleri kapalıdır.\n#Çalışma saatleri: 10:00 - 20:00 arasındadır.\n#Bu saatlerin ve günlerin dışındaki talepleri reddet.\nTüm saatler Europe/Istanbul (GMT+3) saat dilimine göre değerlendirilmelidir.\n\n#Bugün {{ $now }}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -120
+      ],
+      "id": "a3d9056f-0e98-40f1-8222-a4284b04e312",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        -80
+      ],
+      "id": "0dbbe8c6-da61-4588-9bcd-7648356e25cd",
+      "name": "Send a text message",
+      "webhookId": "96d05f55-b09c-46cb-8145-04625539e9d2",
+      "credentials": {
+        "telegramApi": {
+          "id": "TZeao2xTcPE3Dfx4",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        140
+      ],
+      "id": "297e96f6-036e-4322-b922-6553b33fd0fc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZJBJoHoxD6mRPaHL",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "ecemdogannn123@gmail.com",
+          "mode": "list",
+          "cachedResultName": "ecemdogannn123@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        460,
+        140
+      ],
+      "id": "be665c58-7557-4e63-91b6-42b13e763314",
+      "name": "RandevuAl",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Hfz6KooIP1KZKFq4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "ecemdogannn123@gmail.com",
+          "mode": "list",
+          "cachedResultName": "ecemdogannn123@gmail.com"
+        },
+        "start": "={{ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "summary": "={{ $('Telegram Trigger').item.json.message.from.first_name }} {{ $('Telegram Trigger').item.json.message.from.last_name }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        340,
+        140
+      ],
+      "id": "60823385-eb8c-4d23-b511-3095da7dce74",
+      "name": "Takvimle",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Hfz6KooIP1KZKFq4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "chat_memory"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        140
+      ],
+      "id": "475de35a-5a42-4fca-b368-0b58837ac6e0",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "iKavbMlRTuqoTVi7",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"sessionId\": \"{{ $json.message.chat.id }}\",\n\"text\": \"{{ $json.message.text }}\"\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -40,
+        -100
+      ],
+      "id": "931ecd81-ef96-4582-9b76-4f268d0d18f5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "randevular",
+          "mode": "list",
+          "cachedResultName": "randevular"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "isim": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('isim', ``, 'string') }}",
+            "soyisim": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('soyisim', ``, 'string') }}",
+            "gun": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('gun', ``, 'string') }}",
+            "saat": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('saat', ``, 'string') }}",
+            "olusturulma_tarihi": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('olusturulma_tarihi', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "isim",
+              "displayName": "isim",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "soyisim",
+              "displayName": "soyisim",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gun",
+              "displayName": "gun",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "saat",
+              "displayName": "saat",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "time",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "olusturulma_tarihi",
+              "displayName": "olusturulma_tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        600,
+        140
+      ],
+      "id": "a74e046e-095f-47ee-9367-61775d700396",
+      "name": "Insert",
+      "credentials": {
+        "postgres": {
+          "id": "iKavbMlRTuqoTVi7",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RandevuAl": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Takvimle": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "52b4d26b-3de6-47eb-baa2-6988b7eccd65",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "67dd05ad116b91000bfffb00d09e78ca44f2f23172ad1acda823a236e59b7c9c"
+  },
+  "id": "YD3WZLMopSQNDnjN",
+  "tags": []
+}
