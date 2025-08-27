@@ -1,5 +1,5 @@
 {
-  "name": "My workflow 4",
+  "name": "women's hairdresser assistant",
   "nodes": [
     {
       "parameters": {
@@ -52,8 +52,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        520,
-        -80
+        540,
+        -120
       ],
       "id": "0dbbe8c6-da61-4588-9bcd-7648356e25cd",
       "name": "Send a text message",
@@ -372,7 +372,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "52b4d26b-3de6-47eb-baa2-6988b7eccd65",
+  "versionId": "eb80a3d4-cb1f-4e72-a590-3226786b69ea",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "67dd05ad116b91000bfffb00d09e78ca44f2f23172ad1acda823a236e59b7c9c"
